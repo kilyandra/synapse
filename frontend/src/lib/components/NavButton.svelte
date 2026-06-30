@@ -1,12 +1,12 @@
 <script>
-  import { push, router } from "svelte-spa-router";
+  import { navigate, routerState } from "../router.svelte.js";
   let { icon: Icon, path } = $props();
 </script>
 
 <button
-  onclick={() => push(path)}
+  onclick={() => navigate(path)}
   class="w-12 h-12 flex items-center justify-center rounded-2xl
-         {router.location === path
+         {routerState.path === path
     ? 'bg-violet-600 text-white'
     : 'text-violet-600 hover:bg-violet-100 cursor-pointer'}"
 >

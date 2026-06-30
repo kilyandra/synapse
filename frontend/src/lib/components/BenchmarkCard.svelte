@@ -1,10 +1,10 @@
 <script>
-  import { push } from "svelte-spa-router";
+  import { navigate } from "../router.svelte.js";
   let { icon: Icon, name, path = null } = $props();
 </script>
 
 <button
-  onclick={() => path && push(path)}
+  onclick={() => path && navigate(path)}
   disabled={!path}
   class="bg-white shadow-synapse rounded-2xl flex flex-col w-35 aspect-[5/4] transition-all duration-200
          {path

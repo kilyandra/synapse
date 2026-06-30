@@ -1,6 +1,6 @@
 <script>
   import { User, Settings, House } from "lucide-svelte";
-  import { push } from "svelte-spa-router";
+  import { navigate } from "../router.svelte.js";
   import github from "../icons/github.svg";
   import NavButton from "./NavButton.svelte";
 
@@ -11,7 +11,7 @@
   <header class="fixed top-0 inset-x-0 z-10">
     <div class="px-4 pt-4 pb-2">
       <button
-        onclick={() => push("/")}
+        onclick={() => navigate("/")}
         class="text-violet-600 text-2xl lg:text-3xl cursor-pointer"
       >
         synapse.
