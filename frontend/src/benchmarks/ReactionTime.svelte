@@ -1,4 +1,6 @@
 <script>
+  import { saveResult, getBestResults, isLoggedIn } from "../lib/api.js";
+
   let status = $state(null);
   let result = $state(null);
   let best = $state(null);
@@ -7,8 +9,17 @@
   let touchUsed = false;
 
   $effect(() => {
-    const saved = localStorage.getItem("best-reaction-time");
-    if (saved) best = Number(saved);
+    if (isLoggedIn()) {
+      getBestResults()
+        .then((bests) => {
+          const reaction = bests.find((b) => b.benchmark === "reaction-time");
+          if (reaction) best = reaction.score;
+        })
+        .catch(() => {});
+    } else {
+      const saved = localStorage.getItem("best-reaction-time");
+      if (saved) best = Number(saved);
+    }
   });
 
   function handlePress(e) {
@@ -41,10 +52,18 @@
     if (status === "go") {
       result = Date.now() - (startTime ?? 0);
 
-      if (best === null || result < best) {
-        best = result;
-        localStorage.setItem("best-reaction-time", String(best));
+      if (isLoggedIn()) {
+        saveResult("reaction-time", result).catch(() => {});
+        if (best === null || result < best) {
+          best = result;
+        }
+      } else {
+        if (best === null || result < best) {
+          best = result;
+          localStorage.setItem("best-reaction-time", String(best));
+        }
       }
+
       status = null;
     }
   }

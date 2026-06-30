@@ -5,6 +5,18 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [svelte(), tailwindcss()],
+  server: {
+    host: true,
+    watch: {
+      usePolling: true,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://backend:8000',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')

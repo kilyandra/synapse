@@ -6,7 +6,7 @@
 
 <Layout>
   <div class="flex-1 flex flex-col items-center justify-center gap-2">
-    <p class="text-neutral-900 text-2xl lg:text-3xl pb-2">
+    <p class="text-neutral-900 text-2xl lg:text-3xl pb-6">
       benchmark yourself.
     </p>
     <Button onclick={() => push("/bm")}>begin</Button>
