@@ -20,7 +20,7 @@
     <div class="h-2 bg-violet-600 rotate-[-2deg] scale-x-110"></div>
   </header>
 
-  <main class="h-full overflow-y-auto pt-20 pb-24 flex">
+  <main class="h-full overflow-y-auto pt-20 pb-24 flex flex-col items-center w-full">
     {@render children()}
   </main>
 
@@ -36,9 +36,7 @@
         <span class="text-xs text-neutral-900">v{__APP_VERSION__}</span>
       </a>
 
-      <div
-        class="flex items-center w-fit h-12 rounded-2xl bg-white shadow-synapse"
-      >
+      <div class="flex items-center w-fit h-12 bg-white card">
         <NavButton icon={User} path="/profile" />
         <NavButton icon={Settings} path="/settings" />
         <NavButton icon={House} path="/" />

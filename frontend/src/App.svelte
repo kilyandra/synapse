@@ -10,9 +10,7 @@
 
   let path = $derived(routerState.path.replace(/\/+$/, "") || "/");
   let benchmark = $derived(path.startsWith("/bm/") ? path.slice(4) : null);
-  let isKnownBenchmark = $derived(
-    benchmark !== null && BENCHMARKS.includes(benchmark),
-  );
+  let isKnownBenchmark = $derived(benchmark !== null && BENCHMARKS.includes(benchmark));
 </script>
 
 {#if path === "/"}

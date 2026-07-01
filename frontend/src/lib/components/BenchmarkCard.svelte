@@ -6,7 +6,7 @@
 <button
   onclick={() => path && navigate(path)}
   disabled={!path}
-  class="bg-white shadow-synapse rounded-2xl flex flex-col w-35 aspect-[5/4] transition-all duration-200
+  class="bg-white card flex flex-col w-35 aspect-[5/4] transition-all duration-200
          {path
     ? 'hover:bg-violet-50 hover:-translate-y-1 cursor-pointer'
     : 'opacity-50 cursor-default'}"

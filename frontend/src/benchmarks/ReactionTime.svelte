@@ -1,12 +1,13 @@
 <script>
   import { saveResult, getBestResults, isLoggedIn } from "../lib/api.js";
+  import PageTitle from "../lib/components/PageTitle.svelte";
+  import Subtitle from "../lib/components/Subtitle.svelte";
 
   const TOTAL_ROUNDS = 5;
 
   let status = $state(null);
   let round = $state(0);
   let attempts = $state([]);
-  let lastTime = $state(null);
   let result = $state(null);
   let best = $state(null);
   let startTime = null;
@@ -14,14 +15,14 @@
   let touchUsed = false;
 
   $effect(() => {
-    if (isLoggedIn()) {
-      const cached = localStorage.getItem("best-results");
-      if (cached) {
-        const bests = JSON.parse(cached);
-        const reaction = bests.find((b) => b.benchmark === "reaction-time");
-        if (reaction) best = reaction.score;
-      }
+    const cached = localStorage.getItem("best-results");
+    if (cached) {
+      const bests = JSON.parse(cached);
+      const reaction = bests.find((b) => b.benchmark === "reaction-time");
+      if (reaction) best = reaction.score;
+    }
 
+    if (isLoggedIn()) {
       getBestResults()
         .then((bests) => {
           localStorage.setItem("best-results", JSON.stringify(bests));
@@ -29,9 +30,6 @@
           if (reaction) best = reaction.score;
         })
         .catch(() => {});
-    } else {
-      const saved = localStorage.getItem("reaction-time");
-      if (saved) best = Number(saved);
     }
   });
 
@@ -45,32 +43,26 @@
   }
 
   function finishTest() {
-    const average = Math.round(
-      attempts.reduce((sum, t) => sum + t, 0) / attempts.length,
-    );
+    const average = Math.round(attempts.reduce((sum, t) => sum + t, 0) / attempts.length);
     result = average;
     status = "done";
 
     if (isLoggedIn()) {
       saveResult("reaction-time", average).catch(() => {});
-      if (best === null || average < best) {
-        best = average;
+    }
 
-        const cached = localStorage.getItem("cached-best-results");
-        const bests = cached ? JSON.parse(cached) : [];
-        const index = bests.findIndex((b) => b.benchmark === "reaction-time");
-        if (index >= 0) {
-          bests[index].score = average;
-        } else {
-          bests.push({ benchmark: "reaction-time", score: average });
-        }
-        localStorage.setItem("cached-best-results", JSON.stringify(bests));
+    if (best === null || average < best) {
+      best = average;
+
+      const cached = localStorage.getItem("best-results");
+      const bests = cached ? JSON.parse(cached) : [];
+      const index = bests.findIndex((b) => b.benchmark === "reaction-time");
+      if (index >= 0) {
+        bests[index].score = average;
+      } else {
+        bests.push({ benchmark: "reaction-time", score: average });
       }
-    } else {
-      if (best === null || average < best) {
-        best = average;
-        localStorage.setItem("best-reaction-time", String(best));
-      }
+      localStorage.setItem("best-results", JSON.stringify(bests));
     }
   }
 
@@ -92,7 +84,6 @@
       round = 1;
       attempts = [];
       result = null;
-      lastTime = null;
       startRound();
       return;
     }
@@ -108,7 +99,6 @@
     if (status === "go") {
       const time = Date.now() - (startTime ?? 0);
       attempts = [...attempts, time];
-      lastTime = time;
 
       if (round >= TOTAL_ROUNDS) {
         finishTest();
@@ -120,42 +110,41 @@
   }
 </script>
 
-<div class="h-full flex flex-col px-4 pt-6 w-full mx-auto">
-  <p class="pb-2 text-2xl lg:text-3xl text-neutral-900 text-center">
-    reaction time
-  </p>
+<PageTitle>reaction time</PageTitle>
 
-  <p class="h-5 text-sm text-neutral-400 text-center">
-    {#if best !== null}best: {best} ms{/if}
-  </p>
+<div class="h-full flex flex-col px-4 w-full mx-auto">
+  <Subtitle
+    >{#if best !== null}best: {best} ms{/if}</Subtitle
+  >
 
   <div
     onmousedown={handlePress}
     ontouchstart={handlePress}
     role="button"
     tabindex="0"
-    class="flex-1 flex flex-col items-center cursor-pointer select-none pt-24"
+    class="flex-1 flex flex-col items-center cursor-pointer select-none pt-24 outline-none"
   >
     <div
-      class="w-40 h-40 rounded-2xl transition-colors shadow-synapse
+      class="w-40 h-40 card transition-colors
                 {status === 'go' ? 'bg-violet-600' : 'bg-white'}"
     ></div>
 
-    <div class="mt-6 h-8 flex items-center">
+    <div class="mt-6 h-14 flex flex-col items-center gap-1">
       {#if status === null}
         <span class="text-neutral-700">click to start</span>
       {:else if status === "ready"}
-        <span class="text-neutral-700">
-          wait... ({round}/{TOTAL_ROUNDS})
-          {#if lastTime !== null}
-            <span class="text-sm text-neutral-400">{lastTime} ms</span>
-          {/if}
-        </span>
+        <span class="text-neutral-700">wait... ({round}/{TOTAL_ROUNDS})</span>
       {:else if status === "go"}
         <span class="text-violet-600">click!</span>
       {:else if status === "done"}
         <span class="text-violet-600 text-2xl">{result} ms</span>
       {/if}
+
+      <Subtitle>
+        {#if (status === "ready" || status === "go") && attempts.length > 0}
+          {attempts.join(", ")}
+        {/if}
+      </Subtitle>
     </div>
   </div>
 </div>

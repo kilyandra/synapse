@@ -2,15 +2,14 @@
   import Layout from "../lib/components/Layout.svelte";
   import Button from "../lib/components/Button.svelte";
   import { navigate } from "../lib/router.svelte.js";
+  import PageContent from "../lib/components/PageContent.svelte";
+  import PageTitle from "../lib/components/PageTitle.svelte";
 </script>
 
 <Layout>
-  <div class="flex-1 flex flex-col items-center justify-center gap-2">
-    <p class="text-neutral-900 text-2xl lg:text-3xl pb-6">
-      benchmark yourself.
-    </p>
+  <PageContent center>
+    <PageTitle>benchmark yourself.</PageTitle>
     <Button onclick={() => navigate("/bm")}>begin</Button>
-    <Button variant="secondary" onclick={() => {}}>compete</Button>
-    <div class="h-35"></div>
-  </div>
+    <Button variant="secondary">compete</Button>
+  </PageContent>
 </Layout>
