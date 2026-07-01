@@ -11,7 +11,7 @@ services:
     volumes:
       - synapse-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U synapse"]
+      test: [ "CMD-SHELL", "pg_isready -U synapse" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -38,9 +38,10 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend-node-modules:/app/node_modules
     depends_on:
       - backend
 
 volumes:
   synapse-db-data:
+  frontend-node-modules:

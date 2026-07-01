@@ -9,12 +9,35 @@ export async function apiRequest(path, options = {}) {
 
     if (!res.ok) {
         const error = await res.json().catch(() => ({}))
-        throw new Error(error.detail || `Request failed: ${res.status}`)
+        const message = parseErrorDetail(error.detail) || `Request failed: ${res.status}`
+        throw new Error(message)
     }
 
     if (res.status === 204) return null
 
     return res.json()
+}
+
+function parseErrorDetail(detail) {
+    if (!detail) return null
+    if (typeof detail === 'string') return detail
+
+    if (Array.isArray(detail)) {
+        const first = detail[0]
+        if (!first) return 'validation error'
+
+        if (first.loc?.includes('email')) {
+            return 'please enter a valid email address'
+        }
+
+        if (first.loc?.includes('password')) {
+            return 'password must be at least 8 characters'
+        }
+
+        return 'invalid input'
+    }
+
+    return null
 }
 
 export async function register(email, password) {
@@ -41,6 +64,7 @@ export async function getMe() {
 
 export function logout() {
     localStorage.removeItem('token')
+    localStorage.removeItem('cached-user')
 }
 
 export async function saveResult(benchmark, score) {

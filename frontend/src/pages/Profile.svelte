@@ -2,24 +2,41 @@
   import Layout from "../lib/components/Layout.svelte";
   import Button from "../lib/components/Button.svelte";
   import { register, login, getMe, logout } from "../lib/api.js";
+  import validator from "validator";
 
   let mode = $state("login");
   let email = $state("");
   let password = $state("");
   let error = $state("");
   let user = $state(null);
-  let loading = $state(true);
+  let checkingAuth = $state(true);
+  let submitting = $state(false);
 
   $effect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      getMe()
-        .then((u) => (user = u))
-        .catch(() => logout())
-        .finally(() => (loading = false));
-    } else {
-      loading = false;
+
+    if (!token) {
+      checkingAuth = false;
+      return;
     }
+
+    const cached = localStorage.getItem("cached-user");
+    if (cached) {
+      user = JSON.parse(cached);
+      checkingAuth = false;
+    }
+
+    getMe()
+      .then((u) => {
+        user = u;
+        localStorage.setItem("cached-user", JSON.stringify(u));
+        checkingAuth = false;
+      })
+      .catch(() => {
+        logout();
+        user = null;
+        checkingAuth = false;
+      });
   });
 
   function validate() {
@@ -27,16 +44,17 @@
       error = "fill in all fields";
       return false;
     }
-    // простая проверка email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      error = "invalid email";
+
+    if (!validator.isEmail(email)) {
+      error = "please enter a valid email address";
       return false;
     }
+
     if (password.length < 8) {
       error = "password must be at least 8 characters";
       return false;
     }
+
     return true;
   }
 
@@ -44,20 +62,22 @@
     error = "";
     if (!validate()) return;
 
-    loading = true;
+    submitting = true;
     try {
       if (mode === "login") {
         await login(email, password);
       } else {
         await register(email, password);
       }
-      user = await getMe();
+      const u = await getMe();
+      user = u;
+      localStorage.setItem("cached-user", JSON.stringify(u));
       email = "";
       password = "";
     } catch (e) {
       error = e.message;
     } finally {
-      loading = false;
+      submitting = false;
     }
   }
 
@@ -73,16 +93,14 @@
       profile
     </p>
 
-    {#if !loading && !user}
+    {#if !checkingAuth && !user}
       <p class="h-5 text-sm text-neutral-400 text-center">
         log in to track your scores
       </p>
     {/if}
 
     <div class="flex-1 flex flex-col items-center pt-12 gap-4">
-      {#if loading}
-        <p class="text-neutral-400 text-sm">loading...</p>
-      {:else if user}
+      {#if user}
         <div
           class="bg-white shadow-synapse rounded-2xl p-6 w-full max-w-sm flex flex-col gap-2"
         >
@@ -92,28 +110,28 @@
         <div class="flex justify-center pt-4">
           <Button variant="primary" onclick={handleLogout}>logout</Button>
         </div>
-      {:else}
+      {:else if !checkingAuth}
         <div class="w-full max-w-sm flex flex-col gap-3 pt-12">
           <input
             type="email"
             placeholder="email"
             bind:value={email}
-            class="bg-white shadow-synapse rounded-2xl px-4 py-3 outline-none"
+            disabled={submitting}
+            class="bg-white shadow-synapse rounded-2xl px-4 py-3 outline-none disabled:opacity-50"
           />
           <input
             type="password"
             placeholder="password"
             bind:value={password}
-            class="bg-white shadow-synapse rounded-2xl px-4 py-3 outline-none"
+            disabled={submitting}
+            class="bg-white shadow-synapse rounded-2xl px-4 py-3 outline-none disabled:opacity-50"
           />
 
-          {#if error}
-            <p class="text-red-500 text-sm text-center">{error}</p>
-          {/if}
+          <p class="h-5 text-red-500 text-sm text-center">{error}</p>
 
           <div class="flex justify-center pt-4">
-            <Button onclick={handleSubmit}>
-              {mode === "login" ? "login" : "register"}
+            <Button onclick={handleSubmit} disabled={submitting}>
+              {submitting ? "..." : mode === "login" ? "login" : "register"}
             </Button>
           </div>
 
