@@ -9,8 +9,8 @@ node_modules
 dist
 dist-ssr
 *.local
-.vscode
-.idea
+.vscode/
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
