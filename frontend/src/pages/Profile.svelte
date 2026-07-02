@@ -13,6 +13,22 @@
   let googleClientId = $state(null);
   let googleContainer = $state(null);
   let googleAvailable = $state(true);
+  let googleButtonReady = $state(false);
+
+  function watchButtonReady(container) {
+    if (container.childElementCount > 0) {
+      googleButtonReady = true;
+      return;
+    }
+
+    const observer = new MutationObserver(() => {
+      if (container.childElementCount > 0) {
+        googleButtonReady = true;
+        observer.disconnect();
+      }
+    });
+    observer.observe(container, { childList: true });
+  }
 
   function setUser(u) {
     user = u;
@@ -105,6 +121,7 @@
         text: "continue_with",
         locale: "en",
       });
+      watchButtonReady(googleContainer);
 
       setTimeout(() => {
         if (googleContainer && googleContainer.childElementCount === 0) {
@@ -207,7 +224,10 @@
       <div class="w-full max-w-sm flex flex-col gap-3 pt-12">
         <div class="w-full flex flex-col items-center gap-3 min-h-18 justify-center">
           {#if googleClientId && googleAvailable}
-            <div class="flex justify-center w-full" bind:this={googleContainer}></div>
+            <div
+              class="flex justify-center w-full {googleButtonReady ? '' : 'invisible'}"
+              bind:this={googleContainer}
+            ></div>
             <div class="flex items-center gap-2 text-xs text-neutral-400 w-full">
               <div class="flex-1 h-px bg-neutral-200"></div>
               or
