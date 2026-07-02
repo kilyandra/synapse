@@ -178,13 +178,27 @@
 
     {#if status === "memorize" || status === "recall"}
       <div class="mt-4">
-        <Button variant={status === "recall" ? "primary" : "secondary"} onclick={checkAnswer}>
+        <Button
+          variant={status === "recall" ? "primary" : "secondary"}
+          onclick={(e) => {
+            e.stopPropagation();
+            checkAnswer();
+          }}
+        >
           check
         </Button>
       </div>
     {:else if status === "done"}
       <div class="mt-4">
-        <Button variant="primary" onclick={restart}>restart</Button>
+        <Button
+          variant="primary"
+          onclick={(e) => {
+            e.stopPropagation();
+            restart();
+          }}
+        >
+          restart
+        </Button>
       </div>
     {/if}
   </div>
