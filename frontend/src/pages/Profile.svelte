@@ -103,6 +103,7 @@
         size: "large",
         width: 320,
         text: "continue_with",
+        locale: "en",
       });
 
       setTimeout(() => {
