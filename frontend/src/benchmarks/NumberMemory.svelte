@@ -1,4 +1,5 @@
 <script>
+  import { tick } from "svelte";
   import { saveResult, getBestResults, isLoggedIn } from "../lib/api.js";
   import PageTitle from "../lib/components/PageTitle.svelte";
   import Subtitle from "../lib/components/Subtitle.svelte";
@@ -46,9 +47,10 @@
   function startLevel() {
     number = randomNumber(level);
     status = "memorize";
-    timer = setTimeout(() => {
+    timer = setTimeout(async () => {
       status = "recall";
       input = "";
+      await tick();
       inputRef?.focus();
     }, memorizeDuration(level));
   }
@@ -81,8 +83,6 @@
   }
 
   function checkAnswer() {
-    if (!input.trim()) return;
-
     if (input === number) {
       level += 1;
       startLevel();
@@ -127,15 +127,15 @@
     >{#if best !== null}best: {best} digits{/if}</Subtitle
   >
 
-  <div class="flex-1 flex flex-col items-center pt-24">
-    <div
-      onclick={handleZoneClick}
-      onkeydown={handleZoneKeydown}
-      role="button"
-      tabindex="0"
-      class="w-64 select-none outline-none
-             {status === null ? 'cursor-pointer' : ''}"
-    >
+  <div
+    onclick={handleZoneClick}
+    onkeydown={handleZoneKeydown}
+    role="button"
+    tabindex="0"
+    class="flex-1 flex flex-col items-center pt-24 outline-none
+           {status === null ? 'cursor-pointer' : ''}"
+  >
+    <div class="w-64">
       <div class="h-16 flex items-center justify-center">
         {#if status === "memorize"}
           <span class="text-4xl text-violet-600 tracking-widest">{number}</span>
@@ -151,8 +151,6 @@
           />
         {:else if status === "done"}
           <span class="text-violet-600 text-2xl">{level - 1} digits</span>
-        {:else}
-          <span class="text-neutral-700">click to start</span>
         {/if}
       </div>
 
@@ -173,6 +171,8 @@
         <span class="text-neutral-700">memorize the number</span>
       {:else if status === "recall"}
         <span class="text-neutral-700">type what you saw</span>
+      {:else if status === null}
+        <span class="text-neutral-700">click to start</span>
       {/if}
     </div>
 
