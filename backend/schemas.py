@@ -1,15 +1,26 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, field_validator
 from datetime import datetime
 
 
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=32)
+class EmailNormalizedModel(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.lower()
 
 
-class UserLogin(BaseModel):
-    email: EmailStr
+class UserCreate(EmailNormalizedModel):
     password: str
+
+
+class UserLogin(EmailNormalizedModel):
+    password: str
+
+
+class GoogleAuth(BaseModel):
+    credential: str
 
 
 class UserOut(BaseModel):

@@ -30,3 +30,12 @@ button {
   font-weight: 400;
   font-display: swap;
 }
+
+@keyframes shrink-width {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

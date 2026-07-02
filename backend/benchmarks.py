@@ -3,6 +3,7 @@ BENCHMARKS = {
     "number-memory": "max",
 }
 
+
 def is_better(benchmark: str, new_score: int, old_score: int) -> bool:
     direction = BENCHMARKS.get(benchmark, "min")
     if direction == "min":

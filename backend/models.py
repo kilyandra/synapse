@@ -10,7 +10,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=True)
+    google_id = Column(String, unique=True, index=True, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     results = relationship("Result", back_populates="user")
@@ -30,6 +31,7 @@ class Result(Base):
     __table_args__ = (
         Index("ix_user_benchmark", "user_id", "benchmark"),
     )
+
 
 class BestResult(Base):
     __tablename__ = "best_results"

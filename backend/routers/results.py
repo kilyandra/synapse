@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 from benchmarks import is_better
+from config import RATE_LIMIT_DEFAULT
 from database import get_db
+from limiter import limiter
 from models import User, Result, BestResult
 from schemas import ResultCreate
 from auth import get_current_user
@@ -32,20 +34,24 @@ def _best_results(db: Session, user: User) -> list[dict]:
 
 
 @router.post("", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(RATE_LIMIT_DEFAULT)
 def create_result(
-    data: ResultCreate,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        request: Request,
+        data: ResultCreate,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     _record_result(db, current_user, data.benchmark, data.score)
     db.commit()
 
 
 @router.post("/check")
+@limiter.limit(RATE_LIMIT_DEFAULT)
 def check_results(
-    data: list[ResultCreate],
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        request: Request,
+        data: list[ResultCreate],
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     for item in data:
         _record_result(db, current_user, item.benchmark, item.score)
@@ -55,8 +61,10 @@ def check_results(
 
 
 @router.get("/best")
+@limiter.limit(RATE_LIMIT_DEFAULT)
 def get_my_best(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        request: Request,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     return _best_results(db, current_user)

@@ -11,7 +11,7 @@
   <PageContent>
     <div class="flex flex-wrap justify-center gap-4 px-4 pt-2 w-full max-w-4xl mx-auto">
       <BenchmarkCard icon={Zap} name="reaction time" path="/bm/reaction-time" />
-      <BenchmarkCard icon={Binary} name="number memory" />
+      <BenchmarkCard icon={Binary} name="number memory" path="/bm/number-memory" />
       <BenchmarkCard icon={Clock} name="placeholder" />
     </div>
   </PageContent>

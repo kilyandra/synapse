@@ -19,35 +19,14 @@ export async function apiRequest(path, options = {}) {
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));
-    const message = parseErrorDetail(error.detail) || `Request failed: ${res.status}`;
+    const message =
+      typeof error.detail === "string" ? error.detail : `request failed: ${res.status}`;
     throw new Error(message);
   }
 
   if (res.status === 204) return null;
 
   return res.json();
-}
-
-function parseErrorDetail(detail) {
-  if (!detail) return null;
-  if (typeof detail === "string") return detail;
-
-  if (Array.isArray(detail)) {
-    const first = detail[0];
-    if (!first) return "validation error";
-
-    if (first.loc?.includes("email")) {
-      return "please enter a valid email address";
-    }
-
-    if (first.loc?.includes("password")) {
-      return "password must be at least 8 characters";
-    }
-
-    return "invalid input";
-  }
-
-  return null;
 }
 
 export async function register(email, password) {
@@ -72,6 +51,20 @@ export async function login(email, password) {
 
 export async function getMe() {
   return apiRequest("/auth/me");
+}
+
+export async function getAuthConfig() {
+  return apiRequest("/auth/config");
+}
+
+export async function googleAuth(credential) {
+  const data = await apiRequest("/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ credential }),
+  });
+  localStorage.setItem("token", data.access_token);
+  await syncLocalBestResults();
+  return data;
 }
 
 export function logout() {
