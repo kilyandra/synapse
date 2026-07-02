@@ -91,7 +91,7 @@
     if (status === "ready") {
       if (timer) clearTimeout(timer);
       round = 0;
-      attempts = [];
+      attempts = [...attempts, "too early"];
       status = null;
       return;
     }
@@ -141,8 +141,12 @@
       {/if}
 
       <Subtitle>
-        {#if (status === "ready" || status === "go") && attempts.length > 0}
-          {attempts.join(", ")}
+        {#if (status === "ready" || status === "go" || status === null) && attempts.length > 0}
+          {#each attempts as attempt, i}
+            {#if i > 0}<span>, </span>{/if}
+            {#if typeof attempt === "number"}<span>{attempt} ms</span>
+            {:else}<span class="text-red-500">{attempt}</span>{/if}
+          {/each}
         {/if}
       </Subtitle>
     </div>
