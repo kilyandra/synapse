@@ -125,7 +125,7 @@
     class="flex-1 flex flex-col items-center cursor-pointer select-none pt-24 outline-none"
   >
     <div
-      class="w-40 h-40 card transition-colors
+      class="w-40 h-40 card
                 {status === 'go' ? 'bg-violet-600' : 'bg-white'}"
     ></div>
 
